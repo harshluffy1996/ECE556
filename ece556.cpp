@@ -11,6 +11,8 @@
 
 using namespace std;
 
+
+
 #define LINE_SIZE 256
 int readBenchmark(const char *fileName, routingInst *rst){
   /*********** TO BE FILLED BY YOU **********/  
