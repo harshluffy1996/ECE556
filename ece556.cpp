@@ -11,8 +11,6 @@
 
 using namespace std;
 
-
-
 #define LINE_SIZE 256
 int readBenchmark(const char *fileName, routingInst *rst){
   /*********** TO BE FILLED BY YOU **********/  
@@ -25,23 +23,17 @@ int readBenchmark(const char *fileName, routingInst *rst){
     currentLine = new char [LINE_SIZE]();
     fp = fopen (fileName,"r");
     fgets(currentLine,LINE_SIZE,fp);
-
-
-    token = strtok(currentLine, " \n\t");
+    token = strtok(currentLine, " \n\\t");
     token = strtok(NULL, " \n\t");
 	rst->gx = atoi(token); // Converting the field to an integer and store in the
 						   // x dimension of the routing instance
     token = strtok(NULL, " \n\t");
   	rst->gy = atoi(token);
-   
-
     fgets(currentLine,LINE_SIZE,fp);
     token = strtok(currentLine, " \n\t");
     token = strtok(NULL, " \n\t");
 	// the capacity of each edge
 	rst->cap = atoi(token);
-   
-
     fgets(currentLine,LINE_SIZE,fp);
     token = strtok(currentLine, " \n\t");
     token = strtok(NULL, "  \n\t");
@@ -52,7 +44,6 @@ int readBenchmark(const char *fileName, routingInst *rst){
 
     // Allocating the memory to store the nets in the routing instance
     rst->nets = new net [rst->numNets]();
-    
     int net_count=0;
     int pin_count=0;
 	for (net_count=0;net_count<rst->numNets;net_count++)
@@ -78,49 +69,35 @@ int readBenchmark(const char *fileName, routingInst *rst){
 	fgets (currentLine, LINE_SIZE,fp);
     token = strtok (currentLine,"\n");
     num_blockages = atoi (token);
-
     int *bx = new int [num_blockages*2]();
     int *by = new int [num_blockages*2]();
     int *bc = new int [num_blockages]();
-
     int loop1;
-
     for (loop1=0;loop1<num_blockages;loop1++)
 	{
 	  fgets(currentLine,LINE_SIZE,fp);
 	  token = strtok(currentLine, " \n\t");
-		
 	  *(bx + loop1*2) = atoi(token);
-
-	
 	  token = strtok(NULL, " \n\t");
 	  *(by + loop1*2) = atoi(token);
-	
 	  token = strtok(NULL, " \n\t");
 	  *(bx + loop1*2 + 1) = atoi(token);
-	
 	  token = strtok(NULL, " \n\t");
 	  *(by + loop1*2 + 1) = atoi(token);
-	
 	  token = strtok(NULL, " \n\t");
 	  *(bc+loop1) = atoi(token);	
 	}
 
    //calculating the number of edges
    rst->numEdges =  rst->gy*(rst->gx-1) + rst->gx*(rst->gy-1);
-
    //calculating the edge utils
    rst->edgeUtils = new int [rst->numEdges];
-
 //populating the capacities of the edges
    rst->edgeCaps = new int [rst->numEdges];
-
    for (loop1=0;loop1<rst->numEdges;loop1++)
    {
 	  *(rst->edgeCaps+loop1) = 1;
    }
-
-
 //overwriting the num_blockages with the new values
   for (loop1=0;loop1<num_blockages;loop1++)
   {
@@ -136,9 +113,7 @@ int readBenchmark(const char *fileName, routingInst *rst){
 		   rst->edgeCaps[(rst->gy*(rst->gx-1)) + (*(bx+loop1*2+1)) + 
 		  (rst->gx * (*(by+loop1*2+1)) ) ]  = *(bc+loop1);
 		}
-
 	}
-
 
     else
 	{	
@@ -159,25 +134,20 @@ int readBenchmark(const char *fileName, routingInst *rst){
 return 1;	
 }
 
-
 int solveRouting(routingInst *rst){
   /*********** TO BE FILLED BY YOU **********/
    int net_count;
    point P1,P2;
    int seg_count;
    int pin_count; 
-
  for(net_count=0; net_count < rst->numNets; net_count++)
 	{
 	// calculate number of segments for the net	
 	rst->nets[net_count].nroute.numSegs=rst->nets[net_count].numPins - 1; 
 	// consider 2 pins of the net for a segment. So, segments=pins-1 
-
 	rst->nets[net_count].nroute.segments = 
 	new segment [rst->nets[net_count].nroute.numSegs]();
 	//rst->nets[net_count].nroute.segments = new segment [100];
-
-
 	pin_count=0;
 	for(seg_count=0;seg_count < rst->nets[net_count].nroute.numSegs;seg_count++)
 	{ 			
@@ -189,7 +159,6 @@ int solveRouting(routingInst *rst){
 		P2.y=rst->nets[net_count].pins[pin_count].y;
 		rst->nets[net_count].nroute.segments[seg_count].p1 = P1;
 		rst->nets[net_count].nroute.segments[seg_count].p2 = P2;
-
 		rst->nets[net_count].nroute.segments[seg_count].numEdges= 
 		abs(P1.x - P2.x) + abs(P1.y - P2.y);
 			
@@ -212,7 +181,6 @@ int solveRouting(routingInst *rst){
         P1.y=P2.y;
         P2.y=temp;		
 		}
-		
 		int edge_count=0; int xval; int yval;
 					
 		for(xval=P1.x; xval < P2.x ; xval++)
@@ -255,8 +223,7 @@ int writeOutput(const char *outRouteFile, routingInst *rst){
 			if (seg.p1.x == seg.p2.x || seg.p1.y == seg.p2.y) {
 			stream << "(" << seg.p1.x << "," << seg.p1.y << ")-";
 			stream << "(" << seg.p2.x << "," << seg.p2.y << ")" << endl;
-			}
-			
+			}	
 			else {
 			stream << "(" << seg.p1.x << "," << seg.p1.y << ")-";
 			stream << "(" << seg.p2.x << "," << seg.p1.y << ")" << endl;
@@ -266,11 +233,8 @@ int writeOutput(const char *outRouteFile, routingInst *rst){
 		}
 		stream << "!" << endl;
 	}
-
 	stream.close();
-
 	return 1;
-
 }
 
 
@@ -280,18 +244,13 @@ int release(routingInst *rst){
 	rst->numEdges = 0;
 	rst->gx = 0;
 	rst->gy = 0;
-	
 	delete [] rst->edgeCaps;
 	rst->edgeCaps = NULL;
-	
 	delete [] rst->edgeUtils;
 	rst->edgeUtils = NULL;
-	
 	for (int i = 0; i < rst->numNets; i++){
-
 		delete [] rst->nets[i].pins;
 	}
-	
 	rst->numNets = 0;
 	rst->nets = NULL;
 	return 1;
